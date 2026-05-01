@@ -73,8 +73,22 @@ body {
   border-bottom: none;
 }
 
+.song-title {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
 .song-name {
   font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.song-artist {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 400;
 }
 
 .song-style {

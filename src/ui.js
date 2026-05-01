@@ -68,7 +68,10 @@ function renderSongRow(song, stylesById) {
 
   li.innerHTML = `
     <button class="song-summary" type="button">
-      <span class="song-name">${escapeHtml(song.name)}</span>
+      <span class="song-title">
+        <span class="song-name">${escapeHtml(song.name)}</span>
+        ${song.artist ? `<span class="song-artist">${escapeHtml(song.artist)}</span>` : ''}
+      </span>
       <span class="song-style">${escapeHtml(styleName)}</span>
       ${capoText ? `<span class="song-capo">${escapeHtml(capoText)}</span>` : ''}
       ${keyText ? `<span class="song-key">${escapeHtml(keyText)}</span>` : ''}
