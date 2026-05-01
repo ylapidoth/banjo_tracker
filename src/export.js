@@ -2,6 +2,7 @@
 // Pure logic lives in `buildExport`; `exportToFile` (added in Task 5) handles
 // JSON-stringify and download.
 import { getAllTunings, getAllStyles, getAllSongs } from './db.js';
+import { downloadBlob } from './ui.js';
 
 export const SCHEMA_VERSION = 1;
 
@@ -56,4 +57,18 @@ function blobToBase64(blob) {
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(blob);
   });
+}
+
+export async function exportToFile(db) {
+  const data = await buildExport(db);
+  const json = JSON.stringify(data, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  downloadBlob(blob, exportFilename(new Date()));
+}
+
+export function exportFilename(date) {
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  return `banjo_tracker_${yyyy}-${mm}-${dd}.json`;
 }
