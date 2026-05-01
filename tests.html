@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Banjo Tracker — Tests</title>
+  <style>
+    body { font-family: -apple-system, sans-serif; padding: 1.5rem; }
+    h1 { margin-top: 0; }
+    .summary { margin: 1rem 0; font-weight: 600; }
+    .summary.pass { color: #0a7c2f; }
+    .summary.fail { color: #c0392b; }
+    .test { padding: 0.25rem 0; font-family: ui-monospace, monospace; font-size: 0.9rem; }
+    .test.pass::before { content: "✓ "; color: #0a7c2f; }
+    .test.fail::before { content: "✗ "; color: #c0392b; }
+    .test pre { background: #fdecea; padding: 0.5rem; margin: 0.25rem 0 0 1.5rem; }
+  </style>
+</head>
+<body>
+  <h1>Banjo Tracker Tests</h1>
+  <div id="summary" class="summary">Running…</div>
+  <div id="results"></div>
+  <script type="module" src="src/tests/index.js"></script>
+</body>
+</html>
