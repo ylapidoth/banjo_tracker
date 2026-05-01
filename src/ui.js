@@ -281,6 +281,24 @@ export function bindSubmitHandler() {
 export function bindSongActions() {
   const root = document.getElementById('app');
   root.addEventListener('click', async (e) => {
+    const linkTrigger = e.target.closest('[data-action="open-link"]');
+    if (linkTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      const row = linkTrigger.closest('.song-row');
+      if (row) await openLinkForSong(row.dataset.songId);
+      return;
+    }
+
+    const tefTrigger = e.target.closest('[data-action="open-tef"]');
+    if (tefTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      const row = tefTrigger.closest('.song-row');
+      if (row) await openTefForSong(row.dataset.songId);
+      return;
+    }
+
     const pdfTrigger = e.target.closest('[data-action="open-pdf"]');
     if (pdfTrigger) {
       e.preventDefault();
@@ -317,6 +335,30 @@ async function openPdfForSong(songId) {
   const url = URL.createObjectURL(song.pdfBlob);
   window.open(url, '_blank');
   // Revoke after a delay so the new tab has time to load.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+async function openLinkForSong(songId) {
+  const song = await getSong(dbHandle, songId);
+  if (!song || !song.link) return;
+  window.open(song.link, '_blank', 'noopener,noreferrer');
+}
+
+async function openTefForSong(songId) {
+  const song = await getSong(dbHandle, songId);
+  if (!song || !song.tefBlob) return;
+  downloadBlob(song.tefBlob, song.tefFilename || 'tab.tef');
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Revoke after a delay so the download has time to start.
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
