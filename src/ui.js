@@ -1,7 +1,8 @@
 // Rendering and event handlers. Reads the DOM via id, talks to db.js for data.
-import { getAllTunings, getAllStyles, getAllSongs, addSong, addTuning, addStyle } from './db.js';
+import { getAllTunings, getAllStyles, getAllSongs, getSong, addSong, updateSong, addTuning, addStyle } from './db.js';
 
 let dbHandle = null;
+let editingSongId = null;
 
 export function init(db) {
   dbHandle = db;
@@ -107,11 +108,36 @@ export async function openAddSongModal() {
   const title = document.getElementById('song-modal-title');
   const pdfCurrent = document.getElementById('pdf-current');
 
+  editingSongId = null;
   form.reset();
   title.textContent = 'Add Song';
   pdfCurrent.textContent = '';
 
   await populateDropdowns();
+  modal.showModal();
+}
+
+export async function openEditSongModal(songId) {
+  const song = await getSong(dbHandle, songId);
+  if (!song) return;
+
+  const modal = document.getElementById('song-modal');
+  const form = document.getElementById('song-form');
+  const title = document.getElementById('song-modal-title');
+  const pdfCurrent = document.getElementById('pdf-current');
+
+  editingSongId = songId;
+  form.reset();
+  title.textContent = 'Edit Song';
+
+  await populateDropdowns(song.tuningId, song.styleId);
+  form.elements.name.value = song.name;
+  form.elements.capo.value = song.capo ?? '';
+  form.elements.key.value = song.key ?? '';
+  form.elements.artist.value = song.artist ?? '';
+  form.elements.source.value = song.source ?? '';
+  pdfCurrent.textContent = song.pdfFilename ? `Current: ${song.pdfFilename}` : '';
+
   modal.showModal();
 }
 
@@ -183,7 +209,7 @@ export function bindSubmitHandler() {
     const data = new FormData(form);
 
     const pdfFile = data.get('pdf');
-    const hasPdf = pdfFile instanceof File && pdfFile.size > 0;
+    const hasNewPdf = pdfFile instanceof File && pdfFile.size > 0;
 
     const fields = {
       name: data.get('name').trim(),
@@ -193,14 +219,36 @@ export function bindSubmitHandler() {
       key: data.get('key').trim() || null,
       artist: data.get('artist').trim() || null,
       source: data.get('source').trim() || null,
-      pdfBlob: hasPdf ? pdfFile : null,
-      pdfFilename: hasPdf ? pdfFile.name : null,
     };
 
     if (!fields.name || !fields.tuningId || !fields.styleId) return;
 
-    await addSong(dbHandle, fields);
+    if (editingSongId) {
+      const updates = { ...fields };
+      if (hasNewPdf) {
+        updates.pdfBlob = pdfFile;
+        updates.pdfFilename = pdfFile.name;
+      }
+      await updateSong(dbHandle, editingSongId, updates);
+    } else {
+      fields.pdfBlob = hasNewPdf ? pdfFile : null;
+      fields.pdfFilename = hasNewPdf ? pdfFile.name : null;
+      await addSong(dbHandle, fields);
+    }
+
     modal.close();
+    editingSongId = null;
     await renderApp();
+  });
+}
+
+export function bindSongActions() {
+  const root = document.getElementById('app');
+  root.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.song-edit');
+    if (editBtn) {
+      const row = editBtn.closest('.song-row');
+      if (row) openEditSongModal(row.dataset.songId);
+    }
   });
 }
