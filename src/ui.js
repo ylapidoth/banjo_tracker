@@ -66,11 +66,32 @@ function renderSongRow(song, stylesById) {
   const keyText = song.key ? `key ${song.key}` : '';
 
   li.innerHTML = `
-    <span class="song-name">${escapeHtml(song.name)}</span>
-    <span class="song-style">${escapeHtml(styleName)}</span>
-    ${capoText ? `<span class="song-capo">${escapeHtml(capoText)}</span>` : ''}
-    ${keyText ? `<span class="song-key">${escapeHtml(keyText)}</span>` : ''}
+    <button class="song-summary" type="button">
+      <span class="song-name">${escapeHtml(song.name)}</span>
+      <span class="song-style">${escapeHtml(styleName)}</span>
+      ${capoText ? `<span class="song-capo">${escapeHtml(capoText)}</span>` : ''}
+      ${keyText ? `<span class="song-key">${escapeHtml(keyText)}</span>` : ''}
+    </button>
+    <div class="song-detail" hidden>
+      <dl>
+        ${song.artist ? `<dt>Artist</dt><dd>${escapeHtml(song.artist)}</dd>` : ''}
+        ${song.source ? `<dt>Source</dt><dd>${escapeHtml(song.source)}</dd>` : ''}
+        <dt>Added</dt><dd>${escapeHtml(song.dateAdded.slice(0, 10))}</dd>
+        ${song.pdfFilename ? `<dt>PDF</dt><dd>${escapeHtml(song.pdfFilename)}</dd>` : ''}
+      </dl>
+      <div class="song-actions">
+        <button type="button" class="song-edit">Edit</button>
+        <button type="button" class="song-delete">Delete</button>
+      </div>
+    </div>
   `;
+
+  const summary = li.querySelector('.song-summary');
+  const detail = li.querySelector('.song-detail');
+  summary.addEventListener('click', () => {
+    detail.hidden = !detail.hidden;
+  });
+
   return li;
 }
 
