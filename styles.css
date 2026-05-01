@@ -242,3 +242,15 @@ body {
   border-color: #c0392b;
   color: #c0392b;
 }
+
+.song-pdf-link {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #2a6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.song-pdf-link:hover {
+  color: #1a4;
+}

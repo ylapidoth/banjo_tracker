@@ -72,6 +72,7 @@ function renderSongRow(song, stylesById) {
       <span class="song-style">${escapeHtml(styleName)}</span>
       ${capoText ? `<span class="song-capo">${escapeHtml(capoText)}</span>` : ''}
       ${keyText ? `<span class="song-key">${escapeHtml(keyText)}</span>` : ''}
+      ${song.pdfBlob ? `<span class="song-pdf-link" data-action="open-pdf">PDF ↗</span>` : ''}
     </button>
     <div class="song-detail" hidden>
       <dl>
@@ -89,7 +90,8 @@ function renderSongRow(song, stylesById) {
 
   const summary = li.querySelector('.song-summary');
   const detail = li.querySelector('.song-detail');
-  summary.addEventListener('click', () => {
+  summary.addEventListener('click', (e) => {
+    if (e.target.closest('[data-action="open-pdf"]')) return;
     detail.hidden = !detail.hidden;
   });
 
@@ -245,6 +247,15 @@ export function bindSubmitHandler() {
 export function bindSongActions() {
   const root = document.getElementById('app');
   root.addEventListener('click', async (e) => {
+    const pdfTrigger = e.target.closest('[data-action="open-pdf"]');
+    if (pdfTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      const row = pdfTrigger.closest('.song-row');
+      if (row) await openPdfForSong(row.dataset.songId);
+      return;
+    }
+
     const editBtn = e.target.closest('.song-edit');
     if (editBtn) {
       const row = editBtn.closest('.song-row');
@@ -264,4 +275,13 @@ export function bindSongActions() {
       return;
     }
   });
+}
+
+async function openPdfForSong(songId) {
+  const song = await getSong(dbHandle, songId);
+  if (!song || !song.pdfBlob) return;
+  const url = URL.createObjectURL(song.pdfBlob);
+  window.open(url, '_blank');
+  // Revoke after a delay so the new tab has time to load.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
