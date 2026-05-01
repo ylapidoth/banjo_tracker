@@ -1,6 +1,9 @@
 # BanjoTracker
 
-Personal browser app for tracking banjo songs grouped by tuning, with PDF tab attachments.
+Personal browser app for tracking banjo songs grouped by tuning, with PDF/TEF/URL tab attachments.
+
+<img width="1748" height="1592" alt="image" src="https://github.com/user-attachments/assets/13b76d65-4058-44b1-8dc6-a9f52f520100" />
+
 
 ## Run
 
