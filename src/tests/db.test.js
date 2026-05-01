@@ -163,3 +163,30 @@ test('songs: pdfBlob round-trips through the database', async () => {
     assertEq(text, '%PDF-1.4 fake pdf bytes');
   });
 });
+
+test('seed: a fresh database is populated with seed tunings and styles', async () => {
+  await withFreshDB(async (db) => {
+    const tunings = await getAllTunings(db);
+    const styles = await getAllStyles(db);
+    assert(tunings.length >= 5, `expected at least 5 seed tunings, got ${tunings.length}`);
+    assert(styles.length >= 4, `expected at least 4 seed styles, got ${styles.length}`);
+    assert(tunings.every((t) => t.isSeed === true), 'all seeded tunings should have isSeed=true');
+    const names = tunings.map((t) => t.name);
+    assert(names.includes('Open G'), 'Open G should be seeded');
+  });
+});
+
+test('seed: re-opening does not duplicate seed records', async () => {
+  const name = 'banjo_test_' + crypto.randomUUID();
+  const db1 = await openDB(name);
+  const before = (await getAllTunings(db1)).length;
+  db1.close();
+  const db2 = await openDB(name);
+  const after = (await getAllTunings(db2)).length;
+  assertEq(after, before);
+  db2.close();
+  await new Promise((resolve) => {
+    const r = indexedDB.deleteDatabase(name);
+    r.onsuccess = r.onerror = r.onblocked = () => resolve();
+  });
+});

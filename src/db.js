@@ -4,8 +4,10 @@
 const DEFAULT_DB_NAME = 'banjo_tracker';
 const SCHEMA_VERSION = 1;
 
-export function openDB(name = DEFAULT_DB_NAME) {
-  return new Promise((resolve, reject) => {
+import { SEED_TUNINGS, SEED_STYLES } from './seed.js';
+
+export async function openDB(name = DEFAULT_DB_NAME) {
+  const db = await new Promise((resolve, reject) => {
     const request = indexedDB.open(name, SCHEMA_VERSION);
     request.onupgradeneeded = (event) => {
       const db = event.target.result;
@@ -22,6 +24,8 @@ export function openDB(name = DEFAULT_DB_NAME) {
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
+  await seedIfEmpty(db);
+  return db;
 }
 
 // Internal helper used by every later function: wraps an IDBRequest in a Promise.
@@ -97,4 +101,15 @@ export async function updateSong(db, id, fields) {
 export async function deleteSong(db, id) {
   const tx = db.transaction('songs', 'readwrite');
   await req(tx.objectStore('songs').delete(id));
+}
+
+async function seedIfEmpty(db) {
+  const existing = await getAllTunings(db);
+  if (existing.length > 0) return;
+  for (const t of SEED_TUNINGS) {
+    await addTuning(db, { ...t, isSeed: true });
+  }
+  for (const name of SEED_STYLES) {
+    await addStyle(db, { name, isSeed: true });
+  }
 }
