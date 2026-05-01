@@ -109,11 +109,13 @@ export async function openAddSongModal() {
   const form = document.getElementById('song-form');
   const title = document.getElementById('song-modal-title');
   const pdfCurrent = document.getElementById('pdf-current');
+  const tefCurrent = document.getElementById('tef-current');
 
   editingSongId = null;
   form.reset();
   title.textContent = 'Add Song';
   pdfCurrent.textContent = '';
+  if (tefCurrent) tefCurrent.textContent = '';
   const pdfWarning = document.getElementById('pdf-size-warning');
   if (pdfWarning) {
     pdfWarning.hidden = true;
@@ -132,6 +134,7 @@ export async function openEditSongModal(songId) {
   const form = document.getElementById('song-form');
   const title = document.getElementById('song-modal-title');
   const pdfCurrent = document.getElementById('pdf-current');
+  const tefCurrent = document.getElementById('tef-current');
 
   editingSongId = songId;
   form.reset();
@@ -143,7 +146,9 @@ export async function openEditSongModal(songId) {
   form.elements.key.value = song.key ?? '';
   form.elements.artist.value = song.artist ?? '';
   form.elements.source.value = song.source ?? '';
+  form.elements.link.value = song.link ?? '';
   pdfCurrent.textContent = song.pdfFilename ? `Current: ${song.pdfFilename}` : '';
+  if (tefCurrent) tefCurrent.textContent = song.tefFilename ? `Current: ${song.tefFilename}` : '';
   const pdfWarning = document.getElementById('pdf-size-warning');
   if (pdfWarning) {
     pdfWarning.hidden = true;
