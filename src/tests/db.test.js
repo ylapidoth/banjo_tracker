@@ -147,3 +147,19 @@ test('songs: deleteSong removes the record', async () => {
     assertEq(fetched, undefined);
   });
 });
+
+test('songs: pdfBlob round-trips through the database', async () => {
+  await withFreshDB(async (db) => {
+    const blob = new Blob(['%PDF-1.4 fake pdf bytes'], { type: 'application/pdf' });
+    const inserted = await addSong(db, {
+      ...SAMPLE_SONG,
+      pdfBlob: blob,
+      pdfFilename: 'cripple_creek.pdf',
+    });
+    const fetched = await getSong(db, inserted.id);
+    assert(fetched.pdfBlob instanceof Blob, 'pdfBlob should be a Blob');
+    assertEq(fetched.pdfFilename, 'cripple_creek.pdf');
+    const text = await fetched.pdfBlob.text();
+    assertEq(text, '%PDF-1.4 fake pdf bytes');
+  });
+});
