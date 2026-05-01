@@ -1,0 +1,323 @@
+/* Banjo Tracker styles — populated incrementally as features land. */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  margin: 0;
+  background: #fafafa;
+  color: #222;
+}
+
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  background: #fff;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+#app {
+  padding: 1.5rem;
+}
+
+.tuning-section {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+}
+
+.tuning-section summary {
+  cursor: pointer;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-weight: 600;
+}
+
+.tuning-section .tuning-notation {
+  font-family: ui-monospace, monospace;
+  color: #666;
+  font-weight: 400;
+}
+
+.tuning-section .tuning-count {
+  margin-left: auto;
+  font-weight: 400;
+  color: #888;
+  font-size: 0.85rem;
+}
+
+.song-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid #f0f0f0;
+}
+
+.song-row {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.song-row:last-child {
+  border-bottom: none;
+}
+
+.song-name {
+  font-weight: 500;
+}
+
+.song-style {
+  font-size: 0.8rem;
+  background: #eef;
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  color: #335;
+}
+
+.song-capo,
+.song-key {
+  font-size: 0.85rem;
+  color: #666;
+}
+
+#add-song-btn {
+  font: inherit;
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #2a6;
+  background: #2a6;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+#add-song-btn:hover {
+  background: #248;
+  border-color: #248;
+}
+
+.modal {
+  border: none;
+  border-radius: 8px;
+  padding: 0;
+  width: min(90vw, 460px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.modal form {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+}
+
+.modal label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: #444;
+  gap: 0.2rem;
+}
+
+.modal input,
+.modal select {
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal .req {
+  color: #c0392b;
+  margin-left: 0.15rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.modal-actions button {
+  font: inherit;
+  padding: 0.4rem 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.modal-actions #modal-save {
+  background: #2a6;
+  color: white;
+  border-color: #2a6;
+}
+
+#pdf-current {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.song-summary {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.6rem 1rem;
+  background: none;
+  border: none;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  width: 100%;
+}
+
+.song-summary:hover {
+  background: #f5f5f5;
+}
+
+.song-detail {
+  padding: 0.5rem 1rem 1rem;
+  background: #fafafa;
+  border-top: 1px solid #f0f0f0;
+}
+
+.song-detail dl {
+  margin: 0 0 0.6rem;
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 0.2rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.song-detail dt {
+  color: #666;
+}
+
+.song-detail dd {
+  margin: 0;
+}
+
+.song-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.song-actions button {
+  font: inherit;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.song-actions .song-delete {
+  border-color: #c0392b;
+  color: #c0392b;
+}
+
+.song-pdf-link {
+  margin-left: auto;
+  font-size: 0.85rem;
+  color: #2a6;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.song-pdf-link:hover {
+  color: #1a4;
+}
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1.5rem;
+  background: #fff7d6;
+  border-bottom: 1px solid #ead27f;
+  font-size: 0.9rem;
+}
+
+.banner button {
+  font: inherit;
+  background: none;
+  border: 1px solid #ad8a00;
+  color: #6b5500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.toast {
+  position: fixed;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2a2a2a;
+  color: white;
+  padding: 0.65rem 1rem;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  max-width: 90vw;
+}
+
+.toast.error {
+  background: #c0392b;
+}
+
+.form-warning {
+  color: #b7791f;
+  font-size: 0.8rem;
+}
+
+body {
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+  #app {
+    padding: 1rem;
+  }
+  .song-summary {
+    flex-wrap: wrap;
+  }
+  .song-pdf-link {
+    margin-left: 0;
+  }
+}
+
+.tuning-section summary::-webkit-details-marker {
+  color: #999;
+}
