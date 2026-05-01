@@ -228,6 +228,9 @@ export function bindSubmitHandler() {
     const pdfFile = data.get('pdf');
     const hasNewPdf = pdfFile instanceof File && pdfFile.size > 0;
 
+    const tefFile = data.get('tef');
+    const hasNewTef = tefFile instanceof File && tefFile.size > 0;
+
     const fields = {
       name: data.get('name').trim(),
       tuningId: Number(data.get('tuningId')),
@@ -236,6 +239,7 @@ export function bindSubmitHandler() {
       key: data.get('key').trim() || null,
       artist: data.get('artist').trim() || null,
       source: data.get('source').trim() || null,
+      link: data.get('link').trim() || null,
     };
 
     if (!fields.name || !fields.tuningId || !fields.styleId) return;
@@ -247,10 +251,16 @@ export function bindSubmitHandler() {
           updates.pdfBlob = pdfFile;
           updates.pdfFilename = pdfFile.name;
         }
+        if (hasNewTef) {
+          updates.tefBlob = tefFile;
+          updates.tefFilename = tefFile.name;
+        }
         await updateSong(dbHandle, editingSongId, updates);
       } else {
         fields.pdfBlob = hasNewPdf ? pdfFile : null;
         fields.pdfFilename = hasNewPdf ? pdfFile.name : null;
+        fields.tefBlob = hasNewTef ? tefFile : null;
+        fields.tefFilename = hasNewTef ? tefFile.name : null;
         await addSong(dbHandle, fields);
       }
 
@@ -260,7 +270,6 @@ export function bindSubmitHandler() {
     } catch (err) {
       console.error('Failed to save song:', err);
       toast(`Could not save: ${err.message}`, { error: true });
-      // Modal stays open so the user can retry without re-entering data.
     }
   });
 }
