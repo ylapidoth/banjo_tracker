@@ -105,3 +105,75 @@ body {
   background: #248;
   border-color: #248;
 }
+
+.modal {
+  border: none;
+  border-radius: 8px;
+  padding: 0;
+  width: min(90vw, 460px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+}
+
+.modal::backdrop {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.modal form {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal h2 {
+  margin: 0 0 0.25rem;
+  font-size: 1.1rem;
+}
+
+.modal label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  color: #444;
+  gap: 0.2rem;
+}
+
+.modal input,
+.modal select {
+  font: inherit;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.modal .req {
+  color: #c0392b;
+  margin-left: 0.15rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.modal-actions button {
+  font: inherit;
+  padding: 0.4rem 0.9rem;
+  border-radius: 4px;
+  cursor: pointer;
+  border: 1px solid #ccc;
+  background: #fff;
+}
+
+.modal-actions #modal-save {
+  background: #2a6;
+  color: white;
+  border-color: #2a6;
+}
+
+#pdf-current {
+  font-size: 0.8rem;
+  color: #666;
+}

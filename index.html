@@ -12,6 +12,49 @@
     <button id="add-song-btn" type="button">+ Add Song</button>
   </header>
   <main id="app"></main>
+  <dialog id="song-modal" class="modal">
+    <form id="song-form" method="dialog">
+      <h2 id="song-modal-title">Add Song</h2>
+
+      <label>Name<span class="req">*</span>
+        <input type="text" name="name" required>
+      </label>
+
+      <label>Tuning<span class="req">*</span>
+        <select name="tuningId" required></select>
+      </label>
+
+      <label>Style<span class="req">*</span>
+        <select name="styleId" required></select>
+      </label>
+
+      <label>Capo
+        <input type="number" name="capo" min="0" max="12" step="1" placeholder="0">
+      </label>
+
+      <label>Key
+        <input type="text" name="key" placeholder="G">
+      </label>
+
+      <label>Artist
+        <input type="text" name="artist">
+      </label>
+
+      <label>Source
+        <input type="text" name="source" placeholder="book, video, person…">
+      </label>
+
+      <label>PDF
+        <input type="file" name="pdf" accept="application/pdf">
+        <span id="pdf-current"></span>
+      </label>
+
+      <div class="modal-actions">
+        <button type="button" id="modal-cancel">Cancel</button>
+        <button type="submit" id="modal-save">Save</button>
+      </div>
+    </form>
+  </dialog>
   <script type="module" src="src/main.js"></script>
 </body>
 </html>

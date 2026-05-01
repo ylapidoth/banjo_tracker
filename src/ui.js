@@ -79,3 +79,44 @@ function escapeHtml(s) {
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
   ));
 }
+
+export async function openAddSongModal() {
+  const modal = document.getElementById('song-modal');
+  const form = document.getElementById('song-form');
+  const title = document.getElementById('song-modal-title');
+  const pdfCurrent = document.getElementById('pdf-current');
+
+  form.reset();
+  title.textContent = 'Add Song';
+  pdfCurrent.textContent = '';
+
+  await populateDropdowns();
+  modal.showModal();
+}
+
+async function populateDropdowns() {
+  const [tunings, styles] = await Promise.all([
+    getAllTunings(dbHandle),
+    getAllStyles(dbHandle),
+  ]);
+  const form = document.getElementById('song-form');
+  const tuningSelect = form.elements.tuningId;
+  const styleSelect = form.elements.styleId;
+
+  tuningSelect.innerHTML = '<option value="">Select…</option>' +
+    tunings.map((t) => `<option value="${t.id}">${escapeHtml(t.name)} (${escapeHtml(t.notation)})</option>`).join('');
+  styleSelect.innerHTML = '<option value="">Select…</option>' +
+    styles.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+}
+
+export function bindModalControls() {
+  const modal = document.getElementById('song-modal');
+  const cancel = document.getElementById('modal-cancel');
+
+  cancel.addEventListener('click', () => modal.close());
+
+  modal.addEventListener('click', (e) => {
+    // Click outside the form (on the backdrop) closes the dialog.
+    if (e.target === modal) modal.close();
+  });
+}
