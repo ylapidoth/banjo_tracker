@@ -114,6 +114,11 @@ export async function openAddSongModal() {
   form.reset();
   title.textContent = 'Add Song';
   pdfCurrent.textContent = '';
+  const pdfWarning = document.getElementById('pdf-size-warning');
+  if (pdfWarning) {
+    pdfWarning.hidden = true;
+    pdfWarning.textContent = '';
+  }
 
   await populateDropdowns();
   modal.showModal();
@@ -139,6 +144,11 @@ export async function openEditSongModal(songId) {
   form.elements.artist.value = song.artist ?? '';
   form.elements.source.value = song.source ?? '';
   pdfCurrent.textContent = song.pdfFilename ? `Current: ${song.pdfFilename}` : '';
+  const pdfWarning = document.getElementById('pdf-size-warning');
+  if (pdfWarning) {
+    pdfWarning.hidden = true;
+    pdfWarning.textContent = '';
+  }
 
   modal.showModal();
 }
