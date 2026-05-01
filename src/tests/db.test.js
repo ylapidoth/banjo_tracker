@@ -86,3 +86,64 @@ test('styles: getAllStyles returns every inserted style', async () => {
     assertEq(names, ['Clawhammer', 'Scruggs']);
   });
 });
+
+import { addSong, getAllSongs, getSong, updateSong, deleteSong } from '../db.js';
+
+const SAMPLE_SONG = {
+  name: 'Cripple Creek',
+  tuningId: 1,
+  styleId: 1,
+  capo: 2,
+  key: 'A',
+  artist: '',
+  source: 'Ken Perlman book',
+};
+
+test('songs: addSong assigns id and dateAdded', async () => {
+  await withFreshDB(async (db) => {
+    const s = await addSong(db, SAMPLE_SONG);
+    assert(typeof s.id === 'string' && s.id.length > 0, 'id should be a non-empty string');
+    assert(typeof s.dateAdded === 'string');
+    assertEq(s.name, 'Cripple Creek');
+    assertEq(s.tuningId, 1);
+    assertEq(s.capo, 2);
+  });
+});
+
+test('songs: getAllSongs returns every inserted song', async () => {
+  await withFreshDB(async (db) => {
+    await addSong(db, SAMPLE_SONG);
+    await addSong(db, { ...SAMPLE_SONG, name: 'Shady Grove' });
+    const all = await getAllSongs(db);
+    assertEq(all.length, 2);
+  });
+});
+
+test('songs: getSong returns a single record by id', async () => {
+  await withFreshDB(async (db) => {
+    const inserted = await addSong(db, SAMPLE_SONG);
+    const fetched = await getSong(db, inserted.id);
+    assertEq(fetched.name, 'Cripple Creek');
+  });
+});
+
+test('songs: updateSong merges fields without changing id or dateAdded', async () => {
+  await withFreshDB(async (db) => {
+    const inserted = await addSong(db, SAMPLE_SONG);
+    const updated = await updateSong(db, inserted.id, { capo: 5, key: 'D' });
+    assertEq(updated.id, inserted.id);
+    assertEq(updated.dateAdded, inserted.dateAdded);
+    assertEq(updated.capo, 5);
+    assertEq(updated.key, 'D');
+    assertEq(updated.name, 'Cripple Creek');
+  });
+});
+
+test('songs: deleteSong removes the record', async () => {
+  await withFreshDB(async (db) => {
+    const inserted = await addSong(db, SAMPLE_SONG);
+    await deleteSong(db, inserted.id);
+    const fetched = await getSong(db, inserted.id);
+    assertEq(fetched, undefined);
+  });
+});

@@ -62,3 +62,39 @@ export async function getAllStyles(db) {
   const tx = db.transaction('styles', 'readonly');
   return await req(tx.objectStore('styles').getAll());
 }
+
+export async function addSong(db, fields) {
+  const tx = db.transaction('songs', 'readwrite');
+  const record = {
+    id: crypto.randomUUID(),
+    dateAdded: new Date().toISOString(),
+    ...fields,
+  };
+  await req(tx.objectStore('songs').add(record));
+  return record;
+}
+
+export async function getAllSongs(db) {
+  const tx = db.transaction('songs', 'readonly');
+  return await req(tx.objectStore('songs').getAll());
+}
+
+export async function getSong(db, id) {
+  const tx = db.transaction('songs', 'readonly');
+  return await req(tx.objectStore('songs').get(id));
+}
+
+export async function updateSong(db, id, fields) {
+  const txRead = db.transaction('songs', 'readonly');
+  const existing = await req(txRead.objectStore('songs').get(id));
+  if (!existing) throw new Error(`Song ${id} not found`);
+  const merged = { ...existing, ...fields, id: existing.id, dateAdded: existing.dateAdded };
+  const txWrite = db.transaction('songs', 'readwrite');
+  await req(txWrite.objectStore('songs').put(merged));
+  return merged;
+}
+
+export async function deleteSong(db, id) {
+  const tx = db.transaction('songs', 'readwrite');
+  await req(tx.objectStore('songs').delete(id));
+}
