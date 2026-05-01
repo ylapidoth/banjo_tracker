@@ -225,22 +225,28 @@ export function bindSubmitHandler() {
 
     if (!fields.name || !fields.tuningId || !fields.styleId) return;
 
-    if (editingSongId) {
-      const updates = { ...fields };
-      if (hasNewPdf) {
-        updates.pdfBlob = pdfFile;
-        updates.pdfFilename = pdfFile.name;
+    try {
+      if (editingSongId) {
+        const updates = { ...fields };
+        if (hasNewPdf) {
+          updates.pdfBlob = pdfFile;
+          updates.pdfFilename = pdfFile.name;
+        }
+        await updateSong(dbHandle, editingSongId, updates);
+      } else {
+        fields.pdfBlob = hasNewPdf ? pdfFile : null;
+        fields.pdfFilename = hasNewPdf ? pdfFile.name : null;
+        await addSong(dbHandle, fields);
       }
-      await updateSong(dbHandle, editingSongId, updates);
-    } else {
-      fields.pdfBlob = hasNewPdf ? pdfFile : null;
-      fields.pdfFilename = hasNewPdf ? pdfFile.name : null;
-      await addSong(dbHandle, fields);
-    }
 
-    modal.close();
-    editingSongId = null;
-    await renderApp();
+      modal.close();
+      editingSongId = null;
+      await renderApp();
+    } catch (err) {
+      console.error('Failed to save song:', err);
+      toast(`Could not save: ${err.message}`, { error: true });
+      // Modal stays open so the user can retry without re-entering data.
+    }
   });
 }
 
@@ -284,4 +290,32 @@ async function openPdfForSong(songId) {
   window.open(url, '_blank');
   // Revoke after a delay so the new tab has time to load.
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+const PDF_SIZE_WARNING_BYTES = 25 * 1024 * 1024;
+let toastTimer = null;
+
+export function toast(message, { error = false, durationMs = 4000 } = {}) {
+  const el = document.getElementById('toast');
+  el.textContent = message;
+  el.classList.toggle('error', !!error);
+  el.hidden = false;
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => { el.hidden = true; }, durationMs);
+}
+
+export function bindPdfSizeWarning() {
+  const form = document.getElementById('song-form');
+  const warning = document.getElementById('pdf-size-warning');
+  form.elements.pdf.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file && file.size > PDF_SIZE_WARNING_BYTES) {
+      const mb = (file.size / 1024 / 1024).toFixed(1);
+      warning.textContent = `Heads up: ${mb} MB is large; browser storage may struggle.`;
+      warning.hidden = false;
+    } else {
+      warning.hidden = true;
+      warning.textContent = '';
+    }
+  });
 }

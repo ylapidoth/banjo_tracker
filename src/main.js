@@ -6,6 +6,7 @@ import {
   bindModalControls,
   bindSubmitHandler,
   bindSongActions,
+  bindPdfSizeWarning,
 } from './ui.js';
 
 const PERSISTENCE_NOTICE_KEY = 'banjo_tracker:persistence_notice_dismissed';
@@ -15,6 +16,7 @@ init(db);
 bindModalControls();
 bindSubmitHandler();
 bindSongActions();
+bindPdfSizeWarning();
 await renderApp();
 
 document.getElementById('add-song-btn').addEventListener('click', () => {
