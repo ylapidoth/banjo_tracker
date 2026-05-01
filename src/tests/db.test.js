@@ -191,3 +191,44 @@ test('seed: re-opening does not duplicate seed records', async () => {
     r.onsuccess = r.onerror = r.onblocked = () => resolve();
   });
 });
+
+test('songs: link round-trips through the database', async () => {
+  await withFreshDB(async (db) => {
+    const inserted = await addSong(db, {
+      ...SAMPLE_SONG,
+      link: 'https://www.youtube.com/watch?v=abc123',
+    });
+    const fetched = await getSong(db, inserted.id);
+    assertEq(fetched.link, 'https://www.youtube.com/watch?v=abc123');
+  });
+});
+
+test('songs: updating a song to clear link works', async () => {
+  await withFreshDB(async (db) => {
+    const inserted = await addSong(db, {
+      ...SAMPLE_SONG,
+      link: 'https://example.com/x',
+    });
+    await updateSong(db, inserted.id, { link: null });
+    const fetched = await getSong(db, inserted.id);
+    assertEq(fetched.link, null);
+  });
+});
+
+test('songs: tefBlob round-trips through the database', async () => {
+  await withFreshDB(async (db) => {
+    const blob = new Blob([new Uint8Array([0xfe, 0xed, 0xfa, 0xce])], {
+      type: 'application/octet-stream',
+    });
+    const inserted = await addSong(db, {
+      ...SAMPLE_SONG,
+      tefBlob: blob,
+      tefFilename: 'cripple_creek.tef',
+    });
+    const fetched = await getSong(db, inserted.id);
+    assert(fetched.tefBlob instanceof Blob, 'tefBlob should be a Blob');
+    assertEq(fetched.tefFilename, 'cripple_creek.tef');
+    const bytes = new Uint8Array(await fetched.tefBlob.arrayBuffer());
+    assertEq(Array.from(bytes), [0xfe, 0xed, 0xfa, 0xce]);
+  });
+});
