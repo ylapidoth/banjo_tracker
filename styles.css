@@ -254,3 +254,24 @@ body {
 .song-pdf-link:hover {
   color: #1a4;
 }
+
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1.5rem;
+  background: #fff7d6;
+  border-bottom: 1px solid #ead27f;
+  font-size: 0.9rem;
+}
+
+.banner button {
+  font: inherit;
+  background: none;
+  border: 1px solid #ad8a00;
+  color: #6b5500;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
