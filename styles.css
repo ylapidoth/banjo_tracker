@@ -278,6 +278,10 @@ body {
   font-size: 0.9rem;
 }
 
+.banner[hidden] {
+  display: none;
+}
+
 .banner button {
   font: inherit;
   background: none;
