@@ -1,5 +1,5 @@
 // Rendering and event handlers. Reads the DOM via id, talks to db.js for data.
-import { getAllTunings, getAllStyles, getAllSongs, addSong } from './db.js';
+import { getAllTunings, getAllStyles, getAllSongs, addSong, addTuning, addStyle } from './db.js';
 
 let dbHandle = null;
 
@@ -94,7 +94,9 @@ export async function openAddSongModal() {
   modal.showModal();
 }
 
-async function populateDropdowns() {
+const ADD_NEW_VALUE = '__add_new__';
+
+async function populateDropdowns(selectedTuningId = null, selectedStyleId = null) {
   const [tunings, styles] = await Promise.all([
     getAllTunings(dbHandle),
     getAllStyles(dbHandle),
@@ -104,20 +106,50 @@ async function populateDropdowns() {
   const styleSelect = form.elements.styleId;
 
   tuningSelect.innerHTML = '<option value="">Select…</option>' +
-    tunings.map((t) => `<option value="${t.id}">${escapeHtml(t.name)} (${escapeHtml(t.notation)})</option>`).join('');
+    tunings.map((t) => `<option value="${t.id}"${t.id === selectedTuningId ? ' selected' : ''}>${escapeHtml(t.name)} (${escapeHtml(t.notation)})</option>`).join('') +
+    `<option value="${ADD_NEW_VALUE}">+ Add new tuning…</option>`;
+
   styleSelect.innerHTML = '<option value="">Select…</option>' +
-    styles.map((s) => `<option value="${s.id}">${escapeHtml(s.name)}</option>`).join('');
+    styles.map((s) => `<option value="${s.id}"${s.id === selectedStyleId ? ' selected' : ''}>${escapeHtml(s.name)}</option>`).join('') +
+    `<option value="${ADD_NEW_VALUE}">+ Add new style…</option>`;
 }
 
 export function bindModalControls() {
   const modal = document.getElementById('song-modal');
   const cancel = document.getElementById('modal-cancel');
+  const form = document.getElementById('song-form');
 
   cancel.addEventListener('click', () => modal.close());
 
   modal.addEventListener('click', (e) => {
-    // Click outside the form (on the backdrop) closes the dialog.
     if (e.target === modal) modal.close();
+  });
+
+  form.elements.tuningId.addEventListener('change', async (e) => {
+    if (e.target.value !== ADD_NEW_VALUE) return;
+    const name = prompt('Name of new tuning (e.g. "Open G"):');
+    if (!name || !name.trim()) {
+      e.target.value = '';
+      return;
+    }
+    const notation = prompt('Notation (e.g. "gDGBD"):') || '';
+    const created = await addTuning(dbHandle, {
+      name: name.trim(),
+      notation: notation.trim(),
+      isSeed: false,
+    });
+    await populateDropdowns(created.id, Number(form.elements.styleId.value) || null);
+  });
+
+  form.elements.styleId.addEventListener('change', async (e) => {
+    if (e.target.value !== ADD_NEW_VALUE) return;
+    const name = prompt('Name of new style (e.g. "Three-finger"):');
+    if (!name || !name.trim()) {
+      e.target.value = '';
+      return;
+    }
+    const created = await addStyle(dbHandle, { name: name.trim(), isSeed: false });
+    await populateDropdowns(Number(form.elements.tuningId.value) || null, created.id);
   });
 }
 
