@@ -49,12 +49,12 @@ test('tunings: addTuning returns the inserted record with an id', async () => {
 
 test('tunings: getAllTunings returns every inserted tuning', async () => {
   await withFreshDB(async (db) => {
-    await addTuning(db, { name: 'Open G', notation: 'gDGBD', isSeed: true });
-    await addTuning(db, { name: 'Double C', notation: 'gCGCD', isSeed: true });
+    // The DB is auto-seeded by openDB, so filter to user-added (non-seed) tunings.
+    await addTuning(db, { name: 'Test Tuning A', notation: 'aAaAa', isSeed: false });
+    await addTuning(db, { name: 'Test Tuning B', notation: 'bBbBb', isSeed: false });
     const all = await getAllTunings(db);
-    assertEq(all.length, 2);
-    const names = all.map((t) => t.name).sort();
-    assertEq(names, ['Double C', 'Open G']);
+    const userAdded = all.filter((t) => !t.isSeed).map((t) => t.name).sort();
+    assertEq(userAdded, ['Test Tuning A', 'Test Tuning B']);
   });
 });
 
@@ -79,11 +79,12 @@ test('styles: addStyle returns the inserted record with an id', async () => {
 
 test('styles: getAllStyles returns every inserted style', async () => {
   await withFreshDB(async (db) => {
-    await addStyle(db, { name: 'Clawhammer', isSeed: true });
-    await addStyle(db, { name: 'Scruggs', isSeed: true });
+    // The DB is auto-seeded by openDB, so filter to user-added (non-seed) styles.
+    await addStyle(db, { name: 'Test Style A', isSeed: false });
+    await addStyle(db, { name: 'Test Style B', isSeed: false });
     const all = await getAllStyles(db);
-    const names = all.map((s) => s.name).sort();
-    assertEq(names, ['Clawhammer', 'Scruggs']);
+    const userAdded = all.filter((s) => !s.isSeed).map((s) => s.name).sort();
+    assertEq(userAdded, ['Test Style A', 'Test Style B']);
   });
 });
 
