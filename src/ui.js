@@ -72,14 +72,18 @@ function renderSongRow(song, stylesById) {
       <span class="song-style">${escapeHtml(styleName)}</span>
       ${capoText ? `<span class="song-capo">${escapeHtml(capoText)}</span>` : ''}
       ${keyText ? `<span class="song-key">${escapeHtml(keyText)}</span>` : ''}
+      ${song.link ? `<span class="song-link" data-action="open-link">Link ↗</span>` : ''}
+      ${song.tefBlob ? `<span class="song-tef-link" data-action="open-tef">TEF ↓</span>` : ''}
       ${song.pdfBlob ? `<span class="song-pdf-link" data-action="open-pdf">PDF ↗</span>` : ''}
     </button>
     <div class="song-detail" hidden>
       <dl>
         ${song.artist ? `<dt>Artist</dt><dd>${escapeHtml(song.artist)}</dd>` : ''}
         ${song.source ? `<dt>Source</dt><dd>${escapeHtml(song.source)}</dd>` : ''}
+        ${song.link ? `<dt>Link</dt><dd><a href="${escapeHtml(song.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(song.link)} ↗</a></dd>` : ''}
         <dt>Added</dt><dd>${escapeHtml(song.dateAdded.slice(0, 10))}</dd>
         ${song.pdfFilename ? `<dt>PDF</dt><dd>${escapeHtml(song.pdfFilename)}</dd>` : ''}
+        ${song.tefFilename ? `<dt>TEF</dt><dd>${escapeHtml(song.tefFilename)}</dd>` : ''}
       </dl>
       <div class="song-actions">
         <button type="button" class="song-edit">Edit</button>
@@ -91,7 +95,7 @@ function renderSongRow(song, stylesById) {
   const summary = li.querySelector('.song-summary');
   const detail = li.querySelector('.song-detail');
   summary.addEventListener('click', (e) => {
-    if (e.target.closest('[data-action="open-pdf"]')) return;
+    if (e.target.closest('[data-action="open-pdf"], [data-action="open-tef"], [data-action="open-link"]')) return;
     detail.hidden = !detail.hidden;
   });
 
