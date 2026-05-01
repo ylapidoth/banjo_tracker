@@ -1,2 +1,6 @@
-// App entry. Wires storage to UI.
-console.log('Banjo Tracker loaded.');
+import { openDB } from './db.js';
+import { init, renderApp } from './ui.js';
+
+const db = await openDB();
+init(db);
+await renderApp();
