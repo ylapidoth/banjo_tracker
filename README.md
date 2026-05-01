@@ -1,4 +1,4 @@
-# banjo_tracker
+# BanjoTracker
 
 Personal browser app for tracking banjo songs grouped by tuning, with PDF tab attachments.
 
