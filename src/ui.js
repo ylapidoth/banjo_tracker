@@ -1,5 +1,5 @@
 // Rendering and event handlers. Reads the DOM via id, talks to db.js for data.
-import { getAllTunings, getAllStyles, getAllSongs } from './db.js';
+import { getAllTunings, getAllStyles, getAllSongs, addSong } from './db.js';
 
 let dbHandle = null;
 
@@ -118,5 +118,36 @@ export function bindModalControls() {
   modal.addEventListener('click', (e) => {
     // Click outside the form (on the backdrop) closes the dialog.
     if (e.target === modal) modal.close();
+  });
+}
+
+export function bindSubmitHandler() {
+  const form = document.getElementById('song-form');
+  const modal = document.getElementById('song-modal');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const data = new FormData(form);
+
+    const pdfFile = data.get('pdf');
+    const hasPdf = pdfFile instanceof File && pdfFile.size > 0;
+
+    const fields = {
+      name: data.get('name').trim(),
+      tuningId: Number(data.get('tuningId')),
+      styleId: Number(data.get('styleId')),
+      capo: data.get('capo') ? Number(data.get('capo')) : null,
+      key: data.get('key').trim() || null,
+      artist: data.get('artist').trim() || null,
+      source: data.get('source').trim() || null,
+      pdfBlob: hasPdf ? pdfFile : null,
+      pdfFilename: hasPdf ? pdfFile.name : null,
+    };
+
+    if (!fields.name || !fields.tuningId || !fields.styleId) return;
+
+    await addSong(dbHandle, fields);
+    modal.close();
+    await renderApp();
   });
 }
