@@ -34,3 +34,34 @@ test('db: re-opening an existing database does not throw', async () => {
     req.onsuccess = req.onerror = req.onblocked = () => resolve();
   });
 });
+
+import { addTuning, getAllTunings, getTuning } from '../db.js';
+
+test('tunings: addTuning returns the inserted record with an id', async () => {
+  await withFreshDB(async (db) => {
+    const t = await addTuning(db, { name: 'Open G', notation: 'gDGBD', isSeed: false });
+    assert(typeof t.id === 'number', 'id should be a number');
+    assertEq(t.name, 'Open G');
+    assertEq(t.notation, 'gDGBD');
+    assertEq(t.isSeed, false);
+  });
+});
+
+test('tunings: getAllTunings returns every inserted tuning', async () => {
+  await withFreshDB(async (db) => {
+    await addTuning(db, { name: 'Open G', notation: 'gDGBD', isSeed: true });
+    await addTuning(db, { name: 'Double C', notation: 'gCGCD', isSeed: true });
+    const all = await getAllTunings(db);
+    assertEq(all.length, 2);
+    const names = all.map((t) => t.name).sort();
+    assertEq(names, ['Double C', 'Open G']);
+  });
+});
+
+test('tunings: getTuning returns a single record by id', async () => {
+  await withFreshDB(async (db) => {
+    const inserted = await addTuning(db, { name: 'Sawmill', notation: 'gDGCD', isSeed: false });
+    const fetched = await getTuning(db, inserted.id);
+    assertEq(fetched.name, 'Sawmill');
+  });
+});

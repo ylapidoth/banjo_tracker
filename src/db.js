@@ -31,3 +31,21 @@ export function req(request) {
     request.onerror = () => reject(request.error);
   });
 }
+
+export async function addTuning(db, { name, notation, isSeed = false }) {
+  const tx = db.transaction('tunings', 'readwrite');
+  const store = tx.objectStore('tunings');
+  const record = { name, notation, isSeed };
+  const id = await req(store.add(record));
+  return { ...record, id };
+}
+
+export async function getAllTunings(db) {
+  const tx = db.transaction('tunings', 'readonly');
+  return await req(tx.objectStore('tunings').getAll());
+}
+
+export async function getTuning(db, id) {
+  const tx = db.transaction('tunings', 'readonly');
+  return await req(tx.objectStore('tunings').get(id));
+}
