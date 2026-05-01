@@ -299,3 +299,31 @@ body {
   color: #b7791f;
   font-size: 0.8rem;
 }
+
+body {
+  min-height: 100vh;
+}
+
+#app {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+@media (max-width: 600px) {
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+  #app {
+    padding: 1rem;
+  }
+  .song-summary {
+    flex-wrap: wrap;
+  }
+  .song-pdf-link {
+    margin-left: 0;
+  }
+}
+
+.tuning-section summary::-webkit-details-marker {
+  color: #999;
+}
