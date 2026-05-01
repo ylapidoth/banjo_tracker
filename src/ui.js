@@ -1,5 +1,5 @@
 // Rendering and event handlers. Reads the DOM via id, talks to db.js for data.
-import { getAllTunings, getAllStyles, getAllSongs, getSong, addSong, updateSong, addTuning, addStyle } from './db.js';
+import { getAllTunings, getAllStyles, getAllSongs, getSong, addSong, updateSong, deleteSong, addTuning, addStyle } from './db.js';
 
 let dbHandle = null;
 let editingSongId = null;
@@ -244,11 +244,24 @@ export function bindSubmitHandler() {
 
 export function bindSongActions() {
   const root = document.getElementById('app');
-  root.addEventListener('click', (e) => {
+  root.addEventListener('click', async (e) => {
     const editBtn = e.target.closest('.song-edit');
     if (editBtn) {
       const row = editBtn.closest('.song-row');
-      if (row) openEditSongModal(row.dataset.songId);
+      if (row) await openEditSongModal(row.dataset.songId);
+      return;
+    }
+
+    const deleteBtn = e.target.closest('.song-delete');
+    if (deleteBtn) {
+      const row = deleteBtn.closest('.song-row');
+      if (!row) return;
+      const nameEl = row.querySelector('.song-name');
+      const name = nameEl ? nameEl.textContent : 'this song';
+      if (!confirm(`Delete "${name}"? This cannot be undone.`)) return;
+      await deleteSong(dbHandle, row.dataset.songId);
+      await renderApp();
+      return;
     }
   });
 }
