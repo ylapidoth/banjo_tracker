@@ -49,3 +49,16 @@ export async function getTuning(db, id) {
   const tx = db.transaction('tunings', 'readonly');
   return await req(tx.objectStore('tunings').get(id));
 }
+
+export async function addStyle(db, { name, isSeed = false }) {
+  const tx = db.transaction('styles', 'readwrite');
+  const store = tx.objectStore('styles');
+  const record = { name, isSeed };
+  const id = await req(store.add(record));
+  return { ...record, id };
+}
+
+export async function getAllStyles(db) {
+  const tx = db.transaction('styles', 'readonly');
+  return await req(tx.objectStore('styles').getAll());
+}

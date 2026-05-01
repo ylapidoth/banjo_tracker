@@ -65,3 +65,24 @@ test('tunings: getTuning returns a single record by id', async () => {
     assertEq(fetched.name, 'Sawmill');
   });
 });
+
+import { addStyle, getAllStyles } from '../db.js';
+
+test('styles: addStyle returns the inserted record with an id', async () => {
+  await withFreshDB(async (db) => {
+    const s = await addStyle(db, { name: 'Clawhammer', isSeed: true });
+    assert(typeof s.id === 'number');
+    assertEq(s.name, 'Clawhammer');
+    assertEq(s.isSeed, true);
+  });
+});
+
+test('styles: getAllStyles returns every inserted style', async () => {
+  await withFreshDB(async (db) => {
+    await addStyle(db, { name: 'Clawhammer', isSeed: true });
+    await addStyle(db, { name: 'Scruggs', isSeed: true });
+    const all = await getAllStyles(db);
+    const names = all.map((s) => s.name).sort();
+    assertEq(names, ['Clawhammer', 'Scruggs']);
+  });
+});
