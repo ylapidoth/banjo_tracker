@@ -72,14 +72,18 @@ function renderSongRow(song, stylesById) {
       <span class="song-style">${escapeHtml(styleName)}</span>
       ${capoText ? `<span class="song-capo">${escapeHtml(capoText)}</span>` : ''}
       ${keyText ? `<span class="song-key">${escapeHtml(keyText)}</span>` : ''}
+      ${song.link ? `<span class="song-link" data-action="open-link">Link ↗</span>` : ''}
+      ${song.tefBlob ? `<span class="song-tef-link" data-action="open-tef">TEF ↓</span>` : ''}
       ${song.pdfBlob ? `<span class="song-pdf-link" data-action="open-pdf">PDF ↗</span>` : ''}
     </button>
     <div class="song-detail" hidden>
       <dl>
         ${song.artist ? `<dt>Artist</dt><dd>${escapeHtml(song.artist)}</dd>` : ''}
         ${song.source ? `<dt>Source</dt><dd>${escapeHtml(song.source)}</dd>` : ''}
+        ${song.link ? `<dt>Link</dt><dd><a href="${escapeHtml(song.link)}" target="_blank" rel="noopener noreferrer">${escapeHtml(song.link)} ↗</a></dd>` : ''}
         <dt>Added</dt><dd>${escapeHtml(song.dateAdded.slice(0, 10))}</dd>
         ${song.pdfFilename ? `<dt>PDF</dt><dd>${escapeHtml(song.pdfFilename)}</dd>` : ''}
+        ${song.tefFilename ? `<dt>TEF</dt><dd>${escapeHtml(song.tefFilename)}</dd>` : ''}
       </dl>
       <div class="song-actions">
         <button type="button" class="song-edit">Edit</button>
@@ -91,7 +95,7 @@ function renderSongRow(song, stylesById) {
   const summary = li.querySelector('.song-summary');
   const detail = li.querySelector('.song-detail');
   summary.addEventListener('click', (e) => {
-    if (e.target.closest('[data-action="open-pdf"]')) return;
+    if (e.target.closest('[data-action="open-pdf"], [data-action="open-tef"], [data-action="open-link"]')) return;
     detail.hidden = !detail.hidden;
   });
 
@@ -109,11 +113,13 @@ export async function openAddSongModal() {
   const form = document.getElementById('song-form');
   const title = document.getElementById('song-modal-title');
   const pdfCurrent = document.getElementById('pdf-current');
+  const tefCurrent = document.getElementById('tef-current');
 
   editingSongId = null;
   form.reset();
   title.textContent = 'Add Song';
   pdfCurrent.textContent = '';
+  if (tefCurrent) tefCurrent.textContent = '';
   const pdfWarning = document.getElementById('pdf-size-warning');
   if (pdfWarning) {
     pdfWarning.hidden = true;
@@ -132,6 +138,7 @@ export async function openEditSongModal(songId) {
   const form = document.getElementById('song-form');
   const title = document.getElementById('song-modal-title');
   const pdfCurrent = document.getElementById('pdf-current');
+  const tefCurrent = document.getElementById('tef-current');
 
   editingSongId = songId;
   form.reset();
@@ -143,7 +150,9 @@ export async function openEditSongModal(songId) {
   form.elements.key.value = song.key ?? '';
   form.elements.artist.value = song.artist ?? '';
   form.elements.source.value = song.source ?? '';
+  form.elements.link.value = song.link ?? '';
   pdfCurrent.textContent = song.pdfFilename ? `Current: ${song.pdfFilename}` : '';
+  if (tefCurrent) tefCurrent.textContent = song.tefFilename ? `Current: ${song.tefFilename}` : '';
   const pdfWarning = document.getElementById('pdf-size-warning');
   if (pdfWarning) {
     pdfWarning.hidden = true;
@@ -223,6 +232,9 @@ export function bindSubmitHandler() {
     const pdfFile = data.get('pdf');
     const hasNewPdf = pdfFile instanceof File && pdfFile.size > 0;
 
+    const tefFile = data.get('tef');
+    const hasNewTef = tefFile instanceof File && tefFile.size > 0;
+
     const fields = {
       name: data.get('name').trim(),
       tuningId: Number(data.get('tuningId')),
@@ -231,6 +243,7 @@ export function bindSubmitHandler() {
       key: data.get('key').trim() || null,
       artist: data.get('artist').trim() || null,
       source: data.get('source').trim() || null,
+      link: data.get('link').trim() || null,
     };
 
     if (!fields.name || !fields.tuningId || !fields.styleId) return;
@@ -242,10 +255,16 @@ export function bindSubmitHandler() {
           updates.pdfBlob = pdfFile;
           updates.pdfFilename = pdfFile.name;
         }
+        if (hasNewTef) {
+          updates.tefBlob = tefFile;
+          updates.tefFilename = tefFile.name;
+        }
         await updateSong(dbHandle, editingSongId, updates);
       } else {
         fields.pdfBlob = hasNewPdf ? pdfFile : null;
         fields.pdfFilename = hasNewPdf ? pdfFile.name : null;
+        fields.tefBlob = hasNewTef ? tefFile : null;
+        fields.tefFilename = hasNewTef ? tefFile.name : null;
         await addSong(dbHandle, fields);
       }
 
@@ -255,7 +274,6 @@ export function bindSubmitHandler() {
     } catch (err) {
       console.error('Failed to save song:', err);
       toast(`Could not save: ${err.message}`, { error: true });
-      // Modal stays open so the user can retry without re-entering data.
     }
   });
 }
@@ -263,6 +281,24 @@ export function bindSubmitHandler() {
 export function bindSongActions() {
   const root = document.getElementById('app');
   root.addEventListener('click', async (e) => {
+    const linkTrigger = e.target.closest('[data-action="open-link"]');
+    if (linkTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      const row = linkTrigger.closest('.song-row');
+      if (row) await openLinkForSong(row.dataset.songId);
+      return;
+    }
+
+    const tefTrigger = e.target.closest('[data-action="open-tef"]');
+    if (tefTrigger) {
+      e.preventDefault();
+      e.stopPropagation();
+      const row = tefTrigger.closest('.song-row');
+      if (row) await openTefForSong(row.dataset.songId);
+      return;
+    }
+
     const pdfTrigger = e.target.closest('[data-action="open-pdf"]');
     if (pdfTrigger) {
       e.preventDefault();
@@ -299,6 +335,30 @@ async function openPdfForSong(songId) {
   const url = URL.createObjectURL(song.pdfBlob);
   window.open(url, '_blank');
   // Revoke after a delay so the new tab has time to load.
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+}
+
+async function openLinkForSong(songId) {
+  const song = await getSong(dbHandle, songId);
+  if (!song || !song.link) return;
+  window.open(song.link, '_blank', 'noopener,noreferrer');
+}
+
+async function openTefForSong(songId) {
+  const song = await getSong(dbHandle, songId);
+  if (!song || !song.tefBlob) return;
+  downloadBlob(song.tefBlob, song.tefFilename || 'tab.tef');
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  // Revoke after a delay so the download has time to start.
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
